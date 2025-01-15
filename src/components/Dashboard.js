@@ -380,6 +380,7 @@ function Dashboard() {
                         <Typography
                           variant="h6"
                           style={{ fontWeight: '700', fontSize: '13px', textTransform: 'uppercase', wordWrap: 'break-word', textWrap: 'wrap', wordBreak: 'break-word', cursor: 'pointer' }}
+                          onClick={() => handleEditTask(task.id, task.title)}
                           className={`task-title ${task.completed ? 'completed' : ''}`}
                         >
                           {editingTaskId === task.id ? (
