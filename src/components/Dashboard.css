@@ -1,5 +1,5 @@
 .container {
-  padding: 20px;
+  padding: 20px 15px;
 }
 
 .add-task {
@@ -65,13 +65,15 @@
 }
 
 .modal {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   padding: 20px;
   background-color: white;
-  margin: auto;
-  margin-top: 100px;
   border-radius: 8px;
-  width: 80dvw;
-  max-height: 65vh;
+  width: 80vw;
+  height: 70vh;
   overflow-y: scroll;
   text-align: center;
 }

@@ -5,6 +5,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'; // Checked icon
 import CancelIcon from '@mui/icons-material/Cancel';
+import CloseIcon from '@mui/icons-material/Close';
 import NoteIcon from '@mui/icons-material/Note'; // Note icon
 import './Dashboard.css';
 
@@ -48,7 +49,7 @@ function Dashboard() {
 
   // Add task
   const handleAddTask = () => {
-    const newTask = { id: Date.now(), title: `Task ${tasks.length + 1}`, completed: false, subtasks: [] };
+    const newTask = { id: Date.now(), title: `Course ${tasks.length + 1}`, completed: false, subtasks: [] };
     setTasks([...tasks, newTask]);
     setEditingTaskId(newTask.id);
     setEditingTaskTitle(newTask.title);
@@ -77,7 +78,7 @@ function Dashboard() {
 
   // Add Subtask
   const handleAddSubtask = (taskId) => {
-    const newSubtask = { id: Date.now(), title: 'New Subtask', completed: false, notes: [] };
+    const newSubtask = { id: Date.now(), title: `Week ${tasks.find(task => task.id === taskId).subtasks.length + 1}`, completed: false, notes: [] };
     const updatedTasks = tasks.map((task) => {
       if (task.id === taskId) {
         // Set task completion to false when adding a new subtask
@@ -195,11 +196,11 @@ function Dashboard() {
   // Add note
   const handleAddNote = () => {
     const newNoteId = Date.now();
-    const newNote = { id: newNoteId, text: 'Note', completed: false };
+    const newNote = { id: newNoteId, text: `Note ${notes.length + 1}`, completed: false };
     const updatedNotes = [...notes, newNote];
     setNotes(updatedNotes);
-    setEditingNoteId(newNoteId); // Set the new note as the editing note
-    setEditingNoteText('Note'); // Initialize editing text to empty
+    setEditingNoteId(newNoteId);
+    setEditingNoteText(`Note ${notes.length + 1}`);
 
     // Update the subtask's completion status to false when a new note is added
     const updatedTasks = tasks.map(task => {
@@ -297,7 +298,7 @@ function Dashboard() {
       return task;
     });
     setTasks(updatedTasks);
-    handleCloseModal();
+    // handleCloseModal();
   };
 
   return (
@@ -318,9 +319,9 @@ function Dashboard() {
           <Card>
             <CardContent>
               {/* Task */}
-              <Typography variant="h5">Your Tasks</Typography>
+              <Typography variant="h5" style={{ fontWeight: '700' }}>Your Courses</Typography>
               {tasks.length === 0 ? (
-                <Typography>No tasks available.</Typography>
+                <Typography>No course available.</Typography>
               ) : (
                 tasks.map((task) => (
                   <div key={task.id} className="task-container">
@@ -340,7 +341,7 @@ function Dashboard() {
                         )}
                         <Typography
                           variant="h6"
-                          style={{ fontWeight: '700', fontSize: '18px' }}
+                          style={{ fontWeight: '700', fontSize: '13px', textTransform: 'uppercase' }}
                           className={`task-title ${task.completed ? 'completed' : ''}`}
                         >
                           {editingTaskId === task.id ? (
@@ -355,20 +356,20 @@ function Dashboard() {
                           )}
                         </Typography>
                         {/* task progress */}
-                        <Typography variant="body2" className="task-progress" style={{ textAlign: 'center', margin: '0 auto', fontSize: '14px' }}>
+                        <Typography variant="body2" className="task-progress" style={{ textAlign: 'center', margin: '0 auto', fontSize: '12px' }}>
                           Progress: {calculateProgress(task.subtasks, task.completed)}%
                         </Typography>
                       </div>
                       <div>
                         {/* task icons */}
                         <IconButton onClick={() => handleAddSubtask(task.id)}>
-                          <AddIcon style={{ width: '25px', height: '25px' }} />
+                          <AddIcon style={{ width: '22px', height: '22px' }} />
                         </IconButton>
                         <IconButton onClick={() => handleEditTask(task.id, task.title)}>
-                          <EditIcon style={{ width: '25px', height: '25px' }} />
+                          <EditIcon style={{ width: '22px', height: '22px' }} />
                         </IconButton>
                         <IconButton onClick={() => handleRemoveTask(task.id)}>
-                          <DeleteIcon style={{ width: '25px', height: '25px' }} />
+                          <DeleteIcon style={{ width: '22px', height: '22px' }} />
                         </IconButton>
                       </div>
                     </div>
@@ -410,13 +411,13 @@ function Dashboard() {
                             <div>
                               {/* subtask icons */}
                               <IconButton onClick={() => handleOpenModal(subtask.id)}>
-                                <NoteIcon style={{ width: '25px', height: '25px' }} />
+                                <NoteIcon style={{ width: '22px', height: '22px' }} />
                               </IconButton>
                               <IconButton onClick={() => handleEditSubtask(subtask.id, subtask.title)}>
-                                <EditIcon style={{ width: '25px', height: '25px' }} />
+                                <EditIcon style={{ width: '22px', height: '22px' }} />
                               </IconButton>
                               <IconButton onClick={() => handleRemoveSubtask(task.id, subtask.id)}>
-                                <DeleteIcon style={{ width: '25px', height: '25px' }} />
+                                <DeleteIcon style={{ width: '22px', height: '22px' }} />
                               </IconButton>
                             </div>
                           </div>
@@ -436,6 +437,12 @@ function Dashboard() {
       {/* Modal for Notes */}
       <Modal open={openModal} onClose={handleCloseModal}>
         <div className="modal">
+          <IconButton
+            onClick={handleCloseModal}
+            style={{ position: 'absolute', right: '0', top: '0', color: 'black' }}
+          >
+            <CloseIcon />
+          </IconButton>
           <Typography variant="h6" style={{ fontWeight: '700' }}>Notes for Subtask</Typography>
           {notes.map((note) => (
             <div key={note.id} style={{ display: 'flex', alignItems: 'center', margin: '10px 0' }}>
@@ -456,13 +463,13 @@ function Dashboard() {
               ) : (
                 // Display the note text
                 <Typography
-                  style={{ flexGrow: 1, textAlign: 'left', textDecoration: note.completed ? 'line-through' : 'none' }}
+                  style={{ flexGrow: 1, textAlign: 'left', wordWrap: 'break-word', textWrap: 'wrap', wordBreak: 'break-word', textDecoration: note.completed ? 'line-through' : 'none' }}
                   onClick={() => handleEditNote(note.id, note.text)}
                 >
                   {note.text}
                 </Typography>
               )}
-              {/* Delete an Edit icons */}
+              {/* Delete and Edit icons */}
               <IconButton onClick={() => handleEditNote(note.id, note.text)}>
                 <EditIcon />
               </IconButton>
@@ -475,12 +482,12 @@ function Dashboard() {
           <Button onClick={handleAddNote} variant="contained" color="primary" style={{ marginTop: '10px' }}>
             Add Note
           </Button>
-          <Button onClick={handleSaveNotes} variant="contained" color="secondary" style={{ marginTop: '10px', marginLeft: '10px' }}>
+          <Button onClick={() => { handleSaveNotes(); handleCloseModal(); }} variant="contained" color="secondary" style={{ marginTop: '10px', marginLeft: '10px' }}>
             Save Notes
           </Button>
         </div>
-      </Modal>
-    </div>
+      </Modal >
+    </div >
   );
 }
 
