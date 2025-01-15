@@ -1,13 +1,13 @@
 {
   "files": {
-    "main.css": "/study-tracker/static/css/main.1dbb02de.css",
-    "main.js": "/study-tracker/static/js/main.a07b4e20.js",
+    "main.css": "/study-tracker/static/css/main.7bc0eca0.css",
+    "main.js": "/study-tracker/static/js/main.eb905273.js",
     "index.html": "/study-tracker/index.html",
-    "main.1dbb02de.css.map": "/study-tracker/static/css/main.1dbb02de.css.map",
-    "main.a07b4e20.js.map": "/study-tracker/static/js/main.a07b4e20.js.map"
+    "main.7bc0eca0.css.map": "/study-tracker/static/css/main.7bc0eca0.css.map",
+    "main.eb905273.js.map": "/study-tracker/static/js/main.eb905273.js.map"
   },
   "entrypoints": [
-    "static/css/main.1dbb02de.css",
-    "static/js/main.a07b4e20.js"
+    "static/css/main.7bc0eca0.css",
+    "static/js/main.eb905273.js"
   ]
 }
