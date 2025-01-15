@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/study-tracker/static/css/main.1dbb02de.css",
+    "main.js": "/study-tracker/static/js/main.a07b4e20.js",
+    "index.html": "/study-tracker/index.html",
+    "main.1dbb02de.css.map": "/study-tracker/static/css/main.1dbb02de.css.map",
+    "main.a07b4e20.js.map": "/study-tracker/static/js/main.a07b4e20.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.1dbb02de.css",
+    "static/js/main.a07b4e20.js"
+  ]
+}
