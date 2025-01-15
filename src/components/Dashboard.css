@@ -35,14 +35,10 @@
 
 .task-title {
   margin-right: 10px;
-  font-weight: 800;
 }
 
 .task-title.completed {
   text-decoration: line-through;
-}
-
-.task-progress {
 }
 
 .subtask-container {
