@@ -6,6 +6,8 @@ import AddIcon from '@mui/icons-material/Add';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'; // Checked icon
 import CancelIcon from '@mui/icons-material/Cancel';
 import CloseIcon from '@mui/icons-material/Close';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import NoteIcon from '@mui/icons-material/Note'; // Note icon
 import './Dashboard.css';
 
@@ -19,8 +21,10 @@ function Dashboard() {
   const [editingNoteText, setEditingNoteText] = useState('');
   const [openModal, setOpenModal] = useState(false);
   const [currentSubtaskId, setCurrentSubtaskId] = useState(null);
+  const [currentTaskId, setCurrentTaskId] = useState(null);
   const [notes, setNotes] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [subtaskVisibility, setSubtaskVisibility] = useState({});
 
   useEffect(() => {
     // Simulate fetching data with a timeout
@@ -28,7 +32,7 @@ function Dashboard() {
       const storedTasks = JSON.parse(localStorage.getItem('tasks')) || [];
       setTasks(storedTasks);
       setLoading(false); // Set loading to false once data is fetched
-    }, 1500); // Simulate a fetch delay
+    }, 1500); // delay
   }, []);
 
   useEffect(() => {
@@ -46,6 +50,13 @@ function Dashboard() {
       </div>
     );
   }
+
+  const toggleSubtaskVisibility = (taskId) => {
+    setSubtaskVisibility(prevState => ({
+      ...prevState,
+      [taskId]: !prevState[taskId]
+    }));
+  };
 
   // Add task
   const handleAddTask = () => {
@@ -127,15 +138,21 @@ function Dashboard() {
     setEditingSubtaskTitle('');
   };
 
-  // Task Toggle completion 
   const toggleTaskCompletion = (taskId) => {
     const updatedTasks = tasks.map((task) => {
       if (task.id === taskId) {
-        const completed = !task.completed;
-        const subtasks = task.subtasks.map((subtask) => ({ ...subtask, completed }));
-        return { ...task, completed, subtasks };
+        const completed = !task.completed; // Toggle task completion
+        const subtasks = task.subtasks.map((subtask) => {
+          // Toggle completion
+          const updatedNotes = subtask.notes.map(note => {
+            // Toggle note completion if the task is completed
+            return task.completed ? { ...note, completed: false } : { ...note, completed: true };
+          });
+          return { ...subtask, completed, notes: updatedNotes };
+        });
+        return { ...task, completed, subtasks }; // Update task
       }
-      return task;
+      return task; // Return unchanged task
     });
     setTasks(updatedTasks);
   };
@@ -146,14 +163,13 @@ function Dashboard() {
       if (task.id === taskId) {
         const subtasks = task.subtasks.map((subtask) => {
           if (subtask.id === subtaskId) {
-            // Toggle subtask completion and set all notes to completed if subtask is completed
+            // Toggle subtask completion
             const isCompleted = !subtask.completed;
             const updatedNotes = subtask.notes.map(note => ({ ...note, completed: isCompleted }));
             return { ...subtask, completed: isCompleted, notes: updatedNotes };
           }
           return subtask;
         });
-        // Check if all subtasks are completed to update the task's completion status
         const allSubtasksCompleted = subtasks.every((subtask) => subtask.completed);
         return { ...task, subtasks, completed: allSubtasksCompleted };
       }
@@ -180,10 +196,19 @@ function Dashboard() {
 
   // Open modal
   const handleOpenModal = (subtaskId) => {
-    setCurrentSubtaskId(subtaskId);
-    const currentSubtask = tasks.find(task => task.subtasks.some(sub => sub.id === subtaskId)).subtasks.find(sub => sub.id === subtaskId);
-    setNotes(currentSubtask.notes || []);
-    setOpenModal(true);
+    const taskWithSubtask = tasks.find(task =>
+      task.subtasks.some(sub => sub.id === subtaskId)
+    );
+
+    if (taskWithSubtask) {
+      const currentSubtask = taskWithSubtask.subtasks.find(sub => sub.id === subtaskId);
+      setCurrentSubtaskId(subtaskId);
+      setCurrentTaskId(taskWithSubtask.id);
+      setNotes(currentSubtask.notes || []);
+      setOpenModal(true);
+    } else {
+      console.error("Subtask not found");
+    }
   };
 
   // Close modal
@@ -202,7 +227,7 @@ function Dashboard() {
     setEditingNoteId(newNoteId);
     setEditingNoteText(`Note ${notes.length + 1}`);
 
-    // Update the subtask's completion status to false when a new note is added
+    // Change the subtask's completion status to false when a new note is added
     const updatedTasks = tasks.map(task => {
       return {
         ...task,
@@ -231,33 +256,46 @@ function Dashboard() {
   const toggleNoteCompletion = (noteId) => {
     const updatedNotes = notes.map(note => {
       if (note.id === noteId) {
-        return { ...note, completed: !note.completed };
+        return { ...note, completed: !note.completed }; // Toggle note completion
       }
-      return note;
+      return note; // Return unchanged note
     });
     setNotes(updatedNotes);
 
-    // Update the subtask's completion status based on the toggled note
+    // Check if notes in the current subtask are completed
+    const allNotesCompleted = updatedNotes.every(note => note.completed);
+
     const updatedTasks = tasks.map(task => {
       return {
         ...task,
         subtasks: task.subtasks.map(subtask => {
           if (subtask.id === currentSubtaskId) {
-            const allNotesCompleted = updatedNotes.every(note => note.completed);
+            // Update subtask completion status
             return { ...subtask, completed: allNotesCompleted, notes: updatedNotes };
           }
-          return subtask;
+          return subtask; // Return unchanged subtask
         })
       };
     });
-    setTasks(updatedTasks);
+
+    // Check if all subtasks in the task are completed
+    const allSubtasksCompleted = updatedTasks.find(task => task.id === currentTaskId).subtasks.every(subtask => subtask.completed);
+
+    // Update the task's completion status
+    const finalUpdatedTasks = updatedTasks.map(task => {
+      if (task.id === currentTaskId) {
+        return { ...task, completed: allSubtasksCompleted };
+      }
+      return task; // Return unchanged task
+    });
+
+    setTasks(finalUpdatedTasks);
   };
 
   //Delete note
   const handleDeleteNote = (noteId) => {
     const updatedNotes = notes.filter(note => note.id !== noteId);
     setNotes(updatedNotes);
-    // Update the subtask's completion status based on remaining notes
     const updatedTasks = tasks.map(task => {
       return {
         ...task,
@@ -355,6 +393,9 @@ function Dashboard() {
                             task.title
                           )}
                         </Typography>
+                        <IconButton onClick={() => toggleSubtaskVisibility(task.id)}>
+                          {subtaskVisibility[task.id] ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+                        </IconButton>
                         {/* task progress */}
                         <Typography variant="body2" className="task-progress" style={{ textAlign: 'center', margin: '0 auto', fontSize: '12px' }}>
                           Progress: {calculateProgress(task.subtasks, task.completed)}%
@@ -374,58 +415,61 @@ function Dashboard() {
                       </div>
                     </div>
 
-                    {/* subtask container */}
-                    <div className="subtask-container">
-                      {task.subtasks && task.subtasks.length > 0 ? (
-                        task.subtasks.map((subtask) => (
-                          <div key={subtask.id} className="subtask">
-                            <div className="sub-subtask">
-                              {/* toggle completion */}
-                              {subtask.completed ? (
-                                <CancelIcon
-                                  onClick={() => toggleSubtaskCompletion(task.id, subtask.id)}
-                                  style={{ cursor: 'pointer', color: 'red', marginLeft: '15px', width: '20px', height: '20px', marginRight: '5px' }}
-                                />
-                              ) : (
-                                <CheckCircleIcon
-                                  onClick={() => toggleSubtaskCompletion(task.id, subtask.id)}
-                                  style={{ cursor: 'pointer', color: 'green', marginLeft: '15px', width: '20px', height: '20px', marginRight: '5px' }}
-                                />
-                              )}
-                              <Typography
-                                className={`subtask-title ${subtask.completed ? 'completed' : ''}`}
-                              >
-                                {/* edit subtask */}
-                                {editingSubtaskId === subtask.id ? (
-                                  <TextField
-                                    value={editingSubtaskTitle}
-                                    onChange={(e) => setEditingSubtaskTitle(e.target.value)}
-                                    onBlur={() => handleUpdateSubtask(task.id, subtask.id)}
-                                    autoFocus
+                    {subtaskVisibility[task.id] && (
+                      <div className="subtask-container">
+                        {task.subtasks && task.subtasks.length > 0 ? (
+                          task.subtasks.map((subtask) => (
+                            <div key={subtask.id} className="subtask">
+                              <div className="sub-subtask">
+                                {/* toggle completion */}
+                                {subtask.completed ? (
+                                  <CancelIcon
+                                    onClick={() => toggleSubtaskCompletion(task.id, subtask.id)}
+                                    style={{ cursor: 'pointer', color: 'red', marginLeft: '15px', width: '20px', height: '20px', marginRight: '5px' }}
                                   />
                                 ) : (
-                                  subtask.title
+                                  <CheckCircleIcon
+                                    onClick={() => toggleSubtaskCompletion(task.id, subtask.id)}
+                                    style={{ cursor: 'pointer', color: 'green', marginLeft: '15px', width: '20px', height: '20px', marginRight: '5px' }}
+                                  />
                                 )}
-                              </Typography>
+                                <Typography
+                                  className={`subtask-title ${subtask.completed ? 'completed' : ''}`}
+                                >
+                                  {/* edit subtask */}
+                                  {editingSubtaskId === subtask.id ? (
+                                    <TextField
+                                      value={editingSubtaskTitle}
+                                      onChange={(e) => setEditingSubtaskTitle(e.target.value)}
+                                      onBlur={() => handleUpdateSubtask(task.id, subtask.id)}
+                                      autoFocus
+                                    />
+                                  ) : (
+                                    subtask.title
+                                  )}
+                                </Typography>
+                              </div>
+                              <div>
+                                {/* subtask icons */}
+                                <IconButton onClick={() => handleOpenModal(subtask.id)}>
+                                  <NoteIcon style={{ width: '22px', height: '22px' }} />
+                                </IconButton>
+                                <IconButton onClick={() => handleEditSubtask(subtask.id, subtask.title)}>
+                                  <EditIcon style={{ width: '22px', height: '22px' }} />
+                                </IconButton>
+                                <IconButton onClick={() => handleRemoveSubtask(task.id, subtask.id)}>
+                                  <DeleteIcon style={{ width: '22px', height: '22px' }} />
+                                </IconButton>
+                              </div>
                             </div>
-                            <div>
-                              {/* subtask icons */}
-                              <IconButton onClick={() => handleOpenModal(subtask.id)}>
-                                <NoteIcon style={{ width: '22px', height: '22px' }} />
-                              </IconButton>
-                              <IconButton onClick={() => handleEditSubtask(subtask.id, subtask.title)}>
-                                <EditIcon style={{ width: '22px', height: '22px' }} />
-                              </IconButton>
-                              <IconButton onClick={() => handleRemoveSubtask(task.id, subtask.id)}>
-                                <DeleteIcon style={{ width: '22px', height: '22px' }} />
-                              </IconButton>
-                            </div>
-                          </div>
-                        ))
-                      ) : (
-                        <Typography>No subtasks available.</Typography>
-                      )}
-                    </div>
+                          ))
+                        ) : (
+                          <Typography>No Week available.</Typography>
+                        )}
+                      </div>
+                    )}
+
+                    {/* subtask container */}
                   </div>
                 ))
               )}

@@ -42,7 +42,7 @@
 }
 
 .subtask-container {
-  margin-top: 10px;
+  margin-top: 0;
 }
 
 .subtask {
@@ -73,7 +73,7 @@
   background-color: white;
   border-radius: 8px;
   width: 80vw;
-  height: 70vh;
+  max-height: 70vh;
   overflow-y: scroll;
   text-align: center;
 }
