@@ -355,7 +355,7 @@ function Dashboard() {
       <Grid container spacing={2} style={{ marginTop: '20px' }}>
         <Grid item xs={12}>
           <Card>
-            <CardContent>
+            <CardContent style={{ padding: '20px 10px' }}>
               {/* Task */}
               <Typography variant="h5" style={{ fontWeight: '700' }}>Your Courses</Typography>
               {tasks.length === 0 ? (
@@ -369,17 +369,17 @@ function Dashboard() {
                         {task.completed ? (
                           <CancelIcon
                             onClick={() => toggleTaskCompletion(task.id)}
-                            style={{ cursor: 'pointer', color: 'red', width: '20px', height: '20px', marginRight: '5px' }}
+                            style={{ cursor: 'pointer', color: 'red', width: '18px', height: '18px', marginRight: '4px' }}
                           />
                         ) : (
                           <CheckCircleIcon
                             onClick={() => toggleTaskCompletion(task.id)}
-                            style={{ cursor: 'pointer', color: 'green', width: '20px', height: '20px', marginRight: '5px' }}
+                            style={{ cursor: 'pointer', color: 'green', width: '18px', height: '18px', marginRight: '4px' }}
                           />
                         )}
                         <Typography
                           variant="h6"
-                          style={{ fontWeight: '700', fontSize: '13px', textTransform: 'uppercase' }}
+                          style={{ fontWeight: '700', fontSize: '13px', textTransform: 'uppercase', wordWrap: 'break-word', textWrap: 'wrap', wordBreak: 'break-word', cursor: 'pointer' }}
                           className={`task-title ${task.completed ? 'completed' : ''}`}
                         >
                           {editingTaskId === task.id ? (
@@ -394,7 +394,7 @@ function Dashboard() {
                           )}
                         </Typography>
                         <IconButton onClick={() => toggleSubtaskVisibility(task.id)}>
-                          {subtaskVisibility[task.id] ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+                          {subtaskVisibility[task.id] ? <ExpandLessIcon style={{ width: '15px', height: '15px' }} /> : <ExpandMoreIcon style={{ width: '15px', height: '15px' }} />}
                         </IconButton>
                         {/* task progress */}
                         <Typography variant="body2" className="task-progress" style={{ textAlign: 'center', margin: '0 auto', fontSize: '12px' }}>
@@ -404,13 +404,13 @@ function Dashboard() {
                       <div>
                         {/* task icons */}
                         <IconButton onClick={() => handleAddSubtask(task.id)}>
-                          <AddIcon style={{ width: '22px', height: '22px' }} />
+                          <AddIcon style={{ width: '20px', height: '20px' }} />
                         </IconButton>
                         <IconButton onClick={() => handleEditTask(task.id, task.title)}>
-                          <EditIcon style={{ width: '22px', height: '22px' }} />
+                          <EditIcon style={{ width: '20px', height: '20px' }} />
                         </IconButton>
                         <IconButton onClick={() => handleRemoveTask(task.id)}>
-                          <DeleteIcon style={{ width: '22px', height: '22px' }} />
+                          <DeleteIcon style={{ width: '20px', height: '20px' }} />
                         </IconButton>
                       </div>
                     </div>
@@ -425,16 +425,18 @@ function Dashboard() {
                                 {subtask.completed ? (
                                   <CancelIcon
                                     onClick={() => toggleSubtaskCompletion(task.id, subtask.id)}
-                                    style={{ cursor: 'pointer', color: 'red', marginLeft: '15px', width: '20px', height: '20px', marginRight: '5px' }}
+                                    style={{ cursor: 'pointer', color: 'red', marginLeft: '15px', width: '18px', height: '18px', marginRight: '5px' }}
                                   />
                                 ) : (
                                   <CheckCircleIcon
                                     onClick={() => toggleSubtaskCompletion(task.id, subtask.id)}
-                                    style={{ cursor: 'pointer', color: 'green', marginLeft: '15px', width: '20px', height: '20px', marginRight: '5px' }}
+                                    style={{ cursor: 'pointer', color: 'green', marginLeft: '15px', width: '18px', height: '18px', marginRight: '5px' }}
                                   />
                                 )}
                                 <Typography
+                                  style={{ wordWrap: 'break-word', textWrap: 'wrap', wordBreak: 'break-word', cursor: 'pointer', fontSize: '15px', width: '' }}
                                   className={`subtask-title ${subtask.completed ? 'completed' : ''}`}
+                                  onClick={() => handleEditSubtask(subtask.id, subtask.title)}
                                 >
                                   {/* edit subtask */}
                                   {editingSubtaskId === subtask.id ? (
@@ -452,13 +454,13 @@ function Dashboard() {
                               <div>
                                 {/* subtask icons */}
                                 <IconButton onClick={() => handleOpenModal(subtask.id)}>
-                                  <NoteIcon style={{ width: '22px', height: '22px' }} />
+                                  <NoteIcon style={{ width: '20px', height: '20px' }} />
                                 </IconButton>
                                 <IconButton onClick={() => handleEditSubtask(subtask.id, subtask.title)}>
-                                  <EditIcon style={{ width: '22px', height: '22px' }} />
+                                  <EditIcon style={{ width: '20px', height: '20px' }} />
                                 </IconButton>
                                 <IconButton onClick={() => handleRemoveSubtask(task.id, subtask.id)}>
-                                  <DeleteIcon style={{ width: '22px', height: '22px' }} />
+                                  <DeleteIcon style={{ width: '20px', height: '20px' }} />
                                 </IconButton>
                               </div>
                             </div>
@@ -487,7 +489,7 @@ function Dashboard() {
           >
             <CloseIcon />
           </IconButton>
-          <Typography variant="h6" style={{ fontWeight: '700' }}>Notes for Subtask</Typography>
+          <Typography variant="h6" style={{ fontWeight: '700' }}>Notes for Weeks</Typography>
           {notes.map((note) => (
             <div key={note.id} style={{ display: 'flex', alignItems: 'center', margin: '10px 0' }}>
               {/* Note completion status */}
@@ -507,7 +509,7 @@ function Dashboard() {
               ) : (
                 // Display the note text
                 <Typography
-                  style={{ flexGrow: 1, textAlign: 'left', wordWrap: 'break-word', textWrap: 'wrap', wordBreak: 'break-word', textDecoration: note.completed ? 'line-through' : 'none' }}
+                  style={{ flexGrow: 1, textAlign: 'left', wordWrap: 'break-word', textWrap: 'wrap', wordBreak: 'break-word', cursor: 'pointer', textDecoration: note.completed ? 'line-through' : 'none' }}
                   onClick={() => handleEditNote(note.id, note.text)}
                 >
                   {note.text}
