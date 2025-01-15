@@ -54,7 +54,7 @@ function Dashboard() {
   const toggleSubtaskVisibility = (taskId) => {
     setSubtaskVisibility(prevState => ({
       ...prevState,
-      [taskId]: !prevState[taskId]
+      [taskId]: !prevState[taskId] // Toggle visibility for the specific task
     }));
   };
 
@@ -97,8 +97,15 @@ function Dashboard() {
       }
       return task;
     });
-    handleEditSubtask(newSubtask.id, newSubtask.title);
+
+    // Update the visibility of the subtasks to true when a new subtask is added
+    setSubtaskVisibility(prevState => ({
+      ...prevState,
+      [taskId]: true // Ensure the subtasks are visible
+    }));
+
     setTasks(updatedTasks);
+    handleEditSubtask(newSubtask.id, newSubtask.title); // Optionally set the new subtask for editing
   };
 
   // Remove Subtask
@@ -213,6 +220,9 @@ function Dashboard() {
 
   // Close modal
   const handleCloseModal = () => {
+    if (editingNoteId) {
+      handleSaveNotes();
+    }
     setOpenModal(false);
     setCurrentSubtaskId(null);
     setNotes([]);
@@ -224,22 +234,34 @@ function Dashboard() {
     const newNote = { id: newNoteId, text: `Note ${notes.length + 1}`, completed: false };
     const updatedNotes = [...notes, newNote];
     setNotes(updatedNotes);
-    setEditingNoteId(newNoteId);
+    setEditingNoteId(newNoteId); // Set the new note as the editing note
     setEditingNoteText(`Note ${notes.length + 1}`);
 
-    // Change the subtask's completion status to false when a new note is added
+    // Update the subtask's completion status to false when a new note is added
     const updatedTasks = tasks.map(task => {
       return {
         ...task,
         subtasks: task.subtasks.map(subtask => {
           if (subtask.id === currentSubtaskId) {
-            return { ...subtask, completed: false, notes: updatedNotes };
+            // If the task was completed, mark it as incomplete
+            const allNotesCompleted = updatedNotes.every(note => note.completed);
+            return { ...subtask, completed: false, notes: updatedNotes }; // Mark subtask as incomplete
           }
           return subtask;
         })
       };
     });
-    setTasks(updatedTasks);
+
+    // Check if the task should be marked as incomplete
+    const allSubtasksCompleted = updatedTasks.find(task => task.id === currentTaskId).subtasks.every(subtask => subtask.completed);
+    const finalUpdatedTasks = updatedTasks.map(task => {
+      if (task.id === currentTaskId) {
+        return { ...task, completed: allSubtasksCompleted }; // Update task completion status
+      }
+      return task; // Return unchanged task
+    });
+
+    setTasks(finalUpdatedTasks);
   };
 
   // Edit note
@@ -296,19 +318,31 @@ function Dashboard() {
   const handleDeleteNote = (noteId) => {
     const updatedNotes = notes.filter(note => note.id !== noteId);
     setNotes(updatedNotes);
+
+    // Update the subtask's completion status based on remaining notes
     const updatedTasks = tasks.map(task => {
       return {
         ...task,
         subtasks: task.subtasks.map(subtask => {
           if (subtask.id === currentSubtaskId) {
             const allNotesCompleted = updatedNotes.every(note => note.completed);
-            return { ...subtask, completed: allNotesCompleted, notes: updatedNotes };
+            return { ...subtask, completed: allNotesCompleted, notes: updatedNotes }; // Update subtask completion status
           }
-          return subtask;
+          return subtask; // Return unchanged subtask
         })
       };
     });
-    setTasks(updatedTasks);
+
+    // Check if the task should be marked as incomplete
+    const allSubtasksCompleted = updatedTasks.find(task => task.id === currentTaskId).subtasks.every(subtask => subtask.completed);
+    const finalUpdatedTasks = updatedTasks.map(task => {
+      if (task.id === currentTaskId) {
+        return { ...task, completed: allSubtasksCompleted }; // Update task completion status
+      }
+      return task; // Return unchanged task
+    });
+
+    setTasks(finalUpdatedTasks);
   };
 
   // Save note
@@ -321,22 +355,22 @@ function Dashboard() {
             if (subtask.id === currentSubtaskId) {
               const updatedNotes = notes.map(note => {
                 if (note.id === editingNoteId) {
-                  return { ...note, text: editingNoteText };
+                  return { ...note, text: editingNoteText }; // Update the note text
                 }
-                return note;
+                return note; // Return unchanged note
               });
               setNotes(updatedNotes);
               setEditingNoteId(null);
               setEditingNoteText('');
+              return { ...subtask, notes: updatedNotes };
             }
-            return subtask;
+            return subtask; // Return unchanged subtask
           })
         };
       }
       return task;
     });
-    setTasks(updatedTasks);
-    // handleCloseModal();
+    setTasks(updatedTasks); // Update tasks state
   };
 
   return (
